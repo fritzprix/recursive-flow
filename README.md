@@ -74,6 +74,9 @@ completeTodo(jobId: string, todoId: number): JobResponse
 
 ### Workflow
 
+![seq_diagram](//www.plantuml.com/plantuml/png/bPH1QnD15CVl-oaUSqeXNToDzR0GQT4U59GUAXvgaUrcJ5StCs5tbWOaK2I2qaWhjRQ6KWAALcan67lmu9VfCRFv3ivCTfiTKniy15xU_EUzt_lpTkOZveOihWK6yrc0OQ6A2VCzk7Th2HxIyDcJW6x0Xi_MOR71S4ZS09Of3IB3gBkX4Ffrbp1u4E5GIwWoMWQ9Ye_JwWZSI7RG1Ne3gSbQbSjWcP0SlKtsNqAoTIWYA9SDsHLcRuwQEO0oGUTTykCK6IejpcKd1zIST-bQ0IKlJfBEr-HeHoe7PoVY_t3lr3HDD6C8QQxYSuyIXXioyYiEUahNPYsxX8go68iZ1zK3bn2VL56p24G85ppcK-AW2BCbSOIQYjqsOT1l3Jjl87brm3__bkmwNAelv5gifEDO8av3UnoMqEeLi8nMQEIiY95M9y02xB7x8hCiD2bVoHH6twR2sK_3zwydwVHBOyWh2Bmu335HUaTwPnL1dLmCrTJ1b9DIlTZ0NYnJaat7c93eTZ5A0scM2kpCd-bqKYxD7_bLXEnGfE-G2cuur_vcLPrIxwwRmBTROeioztXl6tZ_vw3VXGBl7V3-sOpcg5ff1rIDWjX_jnRD62gPOmrn50VCqWqGsJeDsQNZPzDdDwSChyrdNJAUhTcVOxQdCDl_oMnVCDiJp7aeZzRg0MOujxPpsTf-QF6FxScrpL_9zxMcVpddXxl5y_tlyZVz2oAKOGZzwheemByTyzskuXhqDbCqljC5ljSU_6edNpOVaTBi7F2jO_4am6X1r3GtiWSkDyy_CRFt9niHwP2v_DWJ-LewWBGcwQOYOnwJIbmB_W00)
+
+<!-- 
 ```plantuml
 @startuml
 title Agentic MCP Workflow with External Tools
@@ -121,6 +124,7 @@ MCP -> Agent: {context: {status:"complete"}, nextAction:"complete"}
 Agent -> User: "작업 완료 보고"
 @enduml
 ```
+-->
 
 ### 특징
 
