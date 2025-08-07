@@ -74,7 +74,7 @@ completeTodo(jobId: string, todoId: number): JobResponse
 
 ### Workflow
 
-![seq_diagram](//www.plantuml.com/plantuml/png/bPH1QnD15CVl-oaUSqeXNToDzR0GQT4U59GUAXvgaUrcJ5StCs5tbWOaK2I2qaWhjRQ6KWAALcan67lmu9VfCRFv3ivCTfiTKniy15xU_EUzt_lpTkOZveOihWK6yrc0OQ6A2VCzk7Th2HxIyDcJW6x0Xi_MOR71S4ZS09Of3IB3gBkX4Ffrbp1u4E5GIwWoMWQ9Ye_JwWZSI7RG1Ne3gSbQbSjWcP0SlKtsNqAoTIWYA9SDsHLcRuwQEO0oGUTTykCK6IejpcKd1zIST-bQ0IKlJfBEr-HeHoe7PoVY_t3lr3HDD6C8QQxYSuyIXXioyYiEUahNPYsxX8go68iZ1zK3bn2VL56p24G85ppcK-AW2BCbSOIQYjqsOT1l3Jjl87brm3__bkmwNAelv5gifEDO8av3UnoMqEeLi8nMQEIiY95M9y02xB7x8hCiD2bVoHH6twR2sK_3zwydwVHBOyWh2Bmu335HUaTwPnL1dLmCrTJ1b9DIlTZ0NYnJaat7c93eTZ5A0scM2kpCd-bqKYxD7_bLXEnGfE-G2cuur_vcLPrIxwwRmBTROeioztXl6tZ_vw3VXGBl7V3-sOpcg5ff1rIDWjX_jnRD62gPOmrn50VCqWqGsJeDsQNZPzDdDwSChyrdNJAUhTcVOxQdCDl_oMnVCDiJp7aeZzRg0MOujxPpsTf-QF6FxScrpL_9zxMcVpddXxl5y_tlyZVz2oAKOGZzwheemByTyzskuXhqDbCqljC5ljSU_6edNpOVaTBi7F2jO_4am6X1r3GtiWSkDyy_CRFt9niHwP2v_DWJ-LewWBGcwQOYOnwJIbmB_W00)
+![seq_diagram](https://www.plantuml.com/plantuml/png/bPH1QnD15CVl-oaUSqeXNToDzR0GQT4U59GUAXvgaUrcJ5StCs5tbWOaK2I2qaWhjRQ6KWAALcan67lmu9VfCRFv3ivCTfiTKniy15xU_EUzt_lpTkOZveOihWK6yrc0OQ6A2VCzk7Th2HxIyDcJW6x0Xi_MOR71S4ZS09Of3IB3gBkX4Ffrbp1u4E5GIwWoMWQ9Ye_JwWZSI7RG1Ne3gSbQbSjWcP0SlKtsNqAoTIWYA9SDsHLcRuwQEO0oGUTTykCK6IejpcKd1zIST-bQ0IKlJfBEr-HeHoe7PoVY_t3lr3HDD6C8QQxYSuyIXXioyYiEUahNPYsxX8go68iZ1zK3bn2VL56p24G85ppcK-AW2BCbSOIQYjqsOT1l3Jjl87brm3__bkmwNAelv5gifEDO8av3UnoMqEeLi8nMQEIiY95M9y02xB7x8hCiD2bVoHH6twR2sK_3zwydwVHBOyWh2Bmu335HUaTwPnL1dLmCrTJ1b9DIlTZ0NYnJaat7c93eTZ5A0scM2kpCd-bqKYxD7_bLXEnGfE-G2cuur_vcLPrIxwwRmBTROeioztXl6tZ_vw3VXGBl7V3-sOpcg5ff1rIDWjX_jnRD62gPOmrn50VCqWqGsJeDsQNZPzDdDwSChyrdNJAUhTcVOxQdCDl_oMnVCDiJp7aeZzRg0MOujxPpsTf-QF6FxScrpL_9zxMcVpddXxl5y_tlyZVz2oAKOGZzwheemByTyzskuXhqDbCqljC5ljSU_6edNpOVaTBi7F2jO_4am6X1r3GtiWSkDyy_CRFt9niHwP2v_DWJ-LewWBGcwQOYOnwJIbmB_W00)
 
 <!-- 
 ```plantuml
@@ -133,91 +133,32 @@ Agent -> User: "작업 완료 보고"
 3. **투명한 추적**: 모든 도구 실행 결과가 executionHistory에 기록되어 추적 가능
 4. **유연한 도구 통합**: 어떤 외부 도구든 toolPlan에 포함시켜 실행 가능
 
-## Publishing to NPM
+npx recursive-flow
+npm install -g mcp-flow
+git clone <your-repo>
+## How to Use
 
-To publish this package to NPM, follow these steps:
+### 1. Install
 
-1. **Login to NPM:**
+```bash
+npm install -g recursive-flow
+# 또는 npx로 바로 실행
+npx recursive-flow
+```
 
-    ```bash
-    npm login
-    ```
+### 2. Claude Desktop 연동
 
-2. **Update Package Version:**
-
-    ```bash
-    npm version <patch|minor|major>
-    ```
-
-3. **Publish:**
-
-    ```bash
-    npm publish
-    ```
-
-## Claude Desktop Configuration
-
-This MCP server is designed to work with Claude Desktop application using the stdio transport protocol.
-
-### 1. Install Claude Desktop
-
-Download and install Claude Desktop from [https://claude.ai/download](https://claude.ai/download)
-
-### 2. Configure MCP Server
-
-Add this server to your Claude Desktop configuration file:
-
-**On macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`  
-**On Windows**: `%APPDATA%/Claude/claude_desktop_config.json`
-
-#### Production Mode (Using published npm package)
+Claude Desktop 설정 파일(`claude_desktop_config.json`)에 다음과 같이 등록하세요:
 
 ```json
 {
-    "recursive-flow": {
-    "mcp-flow": {
-      "command": "npx",
-      "args": ["mcp-flow"]
-    }
-  }
-}
-```
-
-#### Development Mode (Using local source)
-
-    "recursive-flow": {
-{
   "mcpServers": {
-    "mcp-flow": {
+    "recursive-flow": {
       "command": "npx",
-      "args": ["tsx", "/absolute/path/to/mcp-flow/src/index.ts"]
+      "args": ["recursive-flow"]
     }
   }
 }
 ```
 
-npm install -g recursive-flow
-
-#### For Production Use
-
-npx recursive-flow
-# Install globally via npm (optional)
-npm install -g mcp-flow
-
-# Or use directly with npx (recommended)
-# No installation needed - npx will download and run automatically
-cd recursive-flow
-
-#### For Development
-
-```bash
-# Clone and install dependencies
-git clone <your-repo>
-cd mcp-flow
-npm install
-
-# Install tsx for TypeScript execution
-npm install -g tsx
-```
-
-Then restart Claude Desktop to load the MCP server.
+설치 후 Claude Desktop을 재시작하면 MCP 서버가 자동 연동됩니다.
