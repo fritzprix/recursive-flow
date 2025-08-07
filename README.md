@@ -170,7 +170,7 @@ Add this server to your Claude Desktop configuration file:
 
 ```json
 {
-  "mcpServers": {
+    "recursive-flow": {
     "mcp-flow": {
       "command": "npx",
       "args": ["mcp-flow"]
@@ -181,7 +181,7 @@ Add this server to your Claude Desktop configuration file:
 
 #### Development Mode (Using local source)
 
-```json
+    "recursive-flow": {
 {
   "mcpServers": {
     "mcp-flow": {
@@ -192,17 +192,17 @@ Add this server to your Claude Desktop configuration file:
 }
 ```
 
-### 3. Installation and Setup
+npm install -g recursive-flow
 
 #### For Production Use
 
-```bash
+npx recursive-flow
 # Install globally via npm (optional)
 npm install -g mcp-flow
 
 # Or use directly with npx (recommended)
 # No installation needed - npx will download and run automatically
-```
+cd recursive-flow
 
 #### For Development
 
