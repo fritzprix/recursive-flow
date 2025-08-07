@@ -32,12 +32,14 @@ When you give your AI assistant a complex task, Recursive Flow helps it work thr
 Let's say you ask your AI to "Research competitors and create a market analysis report":
 
 1. **Planning**: The AI creates a plan with steps like:
+
    - Research main competitors
    - Analyze their pricing strategies
    - Compare product features
    - Create summary document
 
 2. **Execution**: For each step, the AI:
+
    - Identifies the right tools to use (web search, data analysis, document creation)
    - Executes each tool in the right order
    - Records the results for the next step
@@ -70,10 +72,10 @@ RF -> Agent: {context: {todos: [...]}, nextAction: 'selectNextTodo'}
 loop For each TODO item
     Agent -> RF: selectNextTodo(jobId)
     RF -> Agent: {context: {currentTodo: {...}}, nextAction: 'planTodoExecution'}
-    
+
     Agent -> RF: planTodoExecution(jobId, tools)
     RF -> Agent: {context: {toolPlan: [...]}, nextAction: 'tool1'}
-    
+
     loop For each tool in toolPlan
         Agent -> Tools: execute_tool(params)
         Tools -> Agent: tool_result
@@ -84,7 +86,7 @@ loop For each TODO item
             RF -> Agent: {context: {executionHistory: [...]}, nextAction: 'completeTodo'}
         end
     end
-    
+
     Agent -> RF: completeTodo(jobId, todoId)
     alt More TODOs remaining
         RF -> Agent: {context: {todos: [✓,○,○]}, nextAction: 'selectNextTodo'}
@@ -123,6 +125,7 @@ Agent -> User: "Complete results with full context"
 To use Recursive Flow with Claude Desktop, add it to your MCP configuration:
 
 1. **Locate your configuration file**: Find `claude_desktop_config.json` in your system:
+
    - **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
    - **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
 
@@ -151,11 +154,13 @@ Recursive Flow works with any AI assistant that supports the Model Context Proto
 Once installed, you can give your AI assistant complex tasks and it will automatically use Recursive Flow to manage the workflow. Here are some examples:
 
 ### Simple Usage
+
 Just ask your AI assistant to handle complex tasks naturally:
 
 > "I need you to research the top 5 competitors in the electric vehicle market and create a detailed comparison report"
 
 ### What Happens Behind the Scenes
+
 1. **Job Creation**: The AI starts a new workflow job
 2. **Planning**: Breaks down the task into specific steps
 3. **Execution**: Works through each step systematically
@@ -174,7 +179,7 @@ Just ask your AI assistant to handle complex tasks naturally:
 Recursive Flow provides these tools for AI agents (in execution order):
 
 - `startJob`: Begin a new workflow with a specific goal
-- `setPlan`: Break down the goal into actionable steps  
+- `setPlan`: Break down the goal into actionable steps
 - `selectNextTodo`: Choose the next task to execute
 - `planTodoExecution`: Plan how to execute a specific task
 - `reportExecution`: Record the results of task execution
@@ -186,7 +191,7 @@ Recursive Flow provides these tools for AI agents (in execution order):
 The tools follow a recursive pattern:
 
 1. **Start** → setPlan → selectNextTodo
-2. **Loop**: selectNextTodo → planTodoExecution → [external tools] → reportExecution → completeTodo → selectNextTodo  
+2. **Loop**: selectNextTodo → planTodoExecution → [external tools] → reportExecution → completeTodo → selectNextTodo
 3. **End**: selectNextTodo → finishJob → null (workflow complete)
 
 ## Benefits for Users
@@ -211,6 +216,68 @@ The tools follow a recursive pattern:
 
 - Try being more specific about what you want to achieve
 - Break very large tasks into smaller initial requests
+
+## 🤖 System Prompt for LLM Agents
+
+> **Use this prompt to instruct your LLM agent on how to interact with Recursive Flow.**
+
+### System Prompt Template
+
+```
+You are an autonomous workflow agent using the Recursive Flow MCP server.
+Follow this exact protocol to handle complex multi-step tasks:
+
+1. **Job Initialization**
+   - Start by calling `startJob` with the user's main goal
+   - Extract the `jobId` from the response
+
+2. **Planning Phase**
+   - Call `setPlan` with the `jobId` and an ordered array of todo descriptions
+   - Each todo should be a clear, actionable step toward the goal
+
+3. **Execution Loop**
+   For each todo:
+   - Call `selectNextTodo` with the `jobId`
+   - When a todo is selected, call `planTodoExecution` with the `jobId` and array of tool names
+   - Execute each tool in the planned sequence:
+     - Use external tools as needed (web search, file operations, calculations, etc.)
+     - After each tool execution, call `reportExecution` with `jobId`, tool name, and result
+   - When all tools for the todo are complete, call `completeTodo` with `jobId` and `todoId`
+
+4. **Completion**
+   - When `selectNextTodo` returns `nextAction: 'finishJob'`, call `finishJob` with the `jobId`
+   - This generates a comprehensive final report with all accumulated results
+
+**Critical Rules:**
+- ALWAYS follow the `nextAction` field in responses to know what to do next
+- NEVER skip steps or change the protocol order
+- Track the full `context` to understand current workflow state
+- Report ALL tool executions with their actual results
+- When `nextAction` is null, the workflow is complete
+
+**Example Workflow:**
+User: "Research competitors and create a market analysis report"
+
+1. startJob(goal: "Research competitors and create a market analysis report")
+2. setPlan(jobId, ["Research top 3 competitors", "Analyze pricing strategies", "Compare product features", "Create summary report"])
+3. selectNextTodo(jobId) → todo: "Research top 3 competitors"
+4. planTodoExecution(jobId, ["web_search", "data_collection"])
+5. [Execute web_search] → reportExecution(jobId, "web_search", search_results)
+6. [Execute data_collection] → reportExecution(jobId, "data_collection", collected_data)
+7. completeTodo(jobId, 1)
+8. [Repeat steps 3-7 for remaining todos]
+9. finishJob(jobId) → final comprehensive report
+
+Always maintain systematic execution and provide complete, actionable results.
+```
+
+### Integration Examples
+
+**For Claude Desktop:**
+Copy the system prompt above and use it when giving Claude complex tasks that require systematic breakdown and execution.
+
+**For API Integration:**
+Include the system prompt in your assistant's configuration to enable automatic workflow management for complex requests.
 
 ## Support
 
