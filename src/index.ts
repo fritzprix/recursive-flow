@@ -33,11 +33,12 @@ interface JobContext {
     currentTodo?: CurrentTodo;
     executionHistory: ExecutionRecord[];
     thoughts: string[];
+    finalReport?: any;
 }
 
 interface JobResponse {
     context: JobContext;
-    nextAction: string;
+    nextAction: string | null;
 }
 
 const jobs = new Map<string, JobContext>();
@@ -50,7 +51,9 @@ const server = new McpServer({
 server.registerTool("startJob", {
     title: "Start Job",
     description: "Starts a new job with a given goal.",
-    inputSchema: { goal: z.string() },
+    inputSchema: z.object({
+        goal: z.string().describe("The main objective to accomplish")
+    }).shape
 }, async ({ goal }) => {
     const jobId = randomUUID();
     const jobContext: JobContext = {
@@ -72,13 +75,17 @@ server.registerTool("startJob", {
 server.registerTool("setPlan", {
     title: "Set Plan",
     description: "Sets the plan (todos) for a job.",
-    inputSchema: { jobId: z.string(), todos: z.array(z.string()) },
+    inputSchema: z.object({
+        jobId: z.string().describe("The unique identifier of the job"),
+        todos: z.array(z.string()).describe("Array of todo descriptions in execution order")
+    }).shape
 }, async ({ jobId, todos }) => {
     const jobContext = jobs.get(jobId);
     if (!jobContext) {
         return { content: [{ type: "text", text: "Job not found" }], isError: true };
     }
-    jobContext.todos = todos.map((text, i) => ({ id: i + 1, text, check: false }));
+    jobContext.todos = todos.map((text: string, i: number) => ({ id: i + 1, text, check: false }));
+    jobContext.status = 'executing';
     const response: JobResponse = {
         context: jobContext,
         nextAction: 'selectNextTodo',
@@ -89,7 +96,9 @@ server.registerTool("setPlan", {
 server.registerTool("selectNextTodo", {
     title: "Select Next Todo",
     description: "Selects the next todo to execute.",
-    inputSchema: { jobId: z.string() },
+    inputSchema: z.object({
+        jobId: z.string().describe("The unique identifier of the job")
+    }).shape
 }, async ({ jobId }) => {
     const jobContext = jobs.get(jobId);
     if (!jobContext) {
@@ -109,10 +118,9 @@ server.registerTool("selectNextTodo", {
         };
         return { content: [{ type: "text", text: JSON.stringify(response) }] };
     } else {
-        jobContext.status = 'complete';
         const response: JobResponse = {
             context: jobContext,
-            nextAction: 'complete',
+            nextAction: 'finishJob',
         };
         return { content: [{ type: "text", text: JSON.stringify(response) }] };
     }
@@ -121,7 +129,10 @@ server.registerTool("selectNextTodo", {
 server.registerTool("planTodoExecution", {
     title: "Plan Todo Execution",
     description: "Plans the execution of a todo by defining a sequence of tools.",
-    inputSchema: { jobId: z.string(), tools: z.array(z.string()) },
+    inputSchema: z.object({
+        jobId: z.string().describe("The unique identifier of the job"),
+        tools: z.array(z.string()).describe("Array of tool names to execute in sequence")
+    }).shape
 }, async ({ jobId, tools }) => {
     const jobContext = jobs.get(jobId);
     if (!jobContext || !jobContext.currentTodo) {
@@ -140,7 +151,11 @@ server.registerTool("planTodoExecution", {
 server.registerTool("reportExecution", {
     title: "Report Execution",
     description: "Reports the result of a tool execution.",
-    inputSchema: { jobId: z.string(), tool: z.string(), result: z.any() },
+    inputSchema: z.object({
+        jobId: z.string().describe("The unique identifier of the job"),
+        tool: z.string().describe("Name of the tool that was executed"),
+        result: z.any().describe("Result from the tool execution")
+    }).shape
 }, async ({ jobId, tool, result }) => {
     const jobContext = jobs.get(jobId);
     if (!jobContext || !jobContext.currentTodo) {
@@ -160,7 +175,10 @@ server.registerTool("reportExecution", {
 server.registerTool("completeTodo", {
     title: "Complete Todo",
     description: "Marks a todo as complete.",
-    inputSchema: { jobId: z.string(), todoId: z.number() },
+    inputSchema: z.object({
+        jobId: z.string().describe("The unique identifier of the job"),
+        todoId: z.number().describe("The ID of the todo to mark as complete")
+    }).shape
 }, async ({ jobId, todoId }) => {
     const jobContext = jobs.get(jobId);
     if (!jobContext) {
@@ -174,6 +192,40 @@ server.registerTool("completeTodo", {
     const response: JobResponse = {
         context: jobContext,
         nextAction: 'selectNextTodo',
+    };
+    return { content: [{ type: "text", text: JSON.stringify(response) }] };
+});
+
+server.registerTool("finishJob", {
+    title: "Finish Job",
+    description: "Completes the job and generates final report with all accumulated results.",
+    inputSchema: z.object({
+        jobId: z.string().describe("The unique identifier of the job")
+    }).shape
+}, async ({ jobId }) => {
+    const jobContext = jobs.get(jobId);
+    if (!jobContext) {
+        return { content: [{ type: "text", text: "Job not found" }], isError: true };
+    }
+    
+    jobContext.status = 'complete';
+    
+    // Generate final report with all accumulated knowledge
+    jobContext.finalReport = {
+        objective: jobContext.goal,
+        completedTodos: jobContext.todos.filter(todo => todo.check),
+        totalExecutions: jobContext.executionHistory.length,
+        executionSummary: jobContext.executionHistory.map(record => ({
+            tool: record.tool,
+            timestamp: new Date(record.timestamp).toISOString(),
+            hasResult: !!record.result
+        })),
+        fullExecutionHistory: jobContext.executionHistory
+    };
+    
+    const response: JobResponse = {
+        context: jobContext,
+        nextAction: null,
     };
     return { content: [{ type: "text", text: JSON.stringify(response) }] };
 });
