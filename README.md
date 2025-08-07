@@ -1,164 +1,217 @@
-# MCP (Model Context Protocol) Tools를 활용한 확장성 높은 Agentic Workflow
+# Recursive Flow: AI Agent Workflow Manager
 
-- MCP Tools의 Chaining을 통해 다양한 Tool을 활용하여 복잡한 Task를 수행하도록 하기 위한 MCP Tool 기반 Framework 제공
-- 범용적 Framework으로써 많은 Workflow를 수용할 수 있음
+Recursive Flow is a powerful MCP (Model Context Protocol) server that enables AI agents to break down complex tasks into manageable steps and execute them systematically. Perfect for automating multi-step workflows with Claude Desktop and other MCP-compatible AI assistants.
 
-## Framework Concept
+## What It Does
 
-- Tool Call의 Parameter를 통해 각 단계의 필요한 정보의 생성을 강제화
-- Job Context를 Tool 호출 시 항상 노출하여 맥락의 유지를 강화
-- LLM 기반 Agent는 이 MCP 도구를 호출하면서 자연스럽게 복잡한 Task를 수행해나가게됨
-- 각 단계는 다음단계가 명시적이며 다음에 어떤 도구를 호출해야 하는지 nextAction의 값으로 LLM 기반 Agent에 Return하게됨
-- Return된 정보는 Tool Output으로 Message Context 내에 포함되게됨
-- **핵심: Recursive Turn-Taking을 통해 Agent가 자율적으로 작업을 진행하도록 유도**
+- **Smart Task Breaking**: Automatically breaks down complex requests into smaller, manageable todo items
+- **Guided Execution**: Provides step-by-step guidance to AI agents on what to do next
+- **Tool Orchestration**: Coordinates multiple tools and services to complete complex workflows
+- **Progress Tracking**: Keeps track of what's been done and what's still pending
+- **Context Preservation**: Maintains full context throughout the entire workflow
 
-### Context Type
+## Key Benefits
 
-```ts
-interface ToDo {
-    id: number;
-    text: string;
-    check: boolean;
-}
+- **Autonomous Operation**: AI agents can work independently without constant guidance
+- **Reliable Execution**: Systematic approach ensures nothing gets missed
+- **Flexible Integration**: Works with any MCP-compatible tools and services
+- **Complete Transparency**: Full audit trail of all actions taken
+- **Self-Managing**: Agents know exactly what to do next at each step
 
-interface CurrentTodo {
-    todoId: number;
-    todoText: string;
-    toolPlan: string[];        // 실행할 도구 순서
-    currentToolIndex: number;   // 현재 실행 중인 도구 인덱스
-}
+## How It Works
 
-interface ExecutionRecord {
-    tool: string;
-    result: any;
-    timestamp: number;
-}
+When you give your AI assistant a complex task, Recursive Flow helps it work through the task systematically:
 
-interface JobContext {
-    id: string;
-    goal: string;
-    status: 'planning' | 'executing' | 'complete';
-    todos: ToDo[];
-    currentTodo?: CurrentTodo;
-    executionHistory: ExecutionRecord[];
-    thoughts: string[];
-}
+1. **Planning Phase**: The AI breaks down your request into specific action items
+2. **Execution Phase**: Each action item is tackled step-by-step with the right tools
+3. **Progress Tracking**: The system keeps track of what's done and what's next
+4. **Completion**: Once all items are finished, you get a complete summary
 
-interface JobResponse {
-    context: JobContext;
-    nextAction: string;  // Agent가 다음에 호출해야 할 function/tool
-}
-```
+### Example Workflow
 
-### MCP Tool Methods
+Let's say you ask your AI to "Research competitors and create a market analysis report":
 
-```ts
-// Job 시작
-startJob(goal: string): JobResponse
+1. **Planning**: The AI creates a plan with steps like:
+   - Research main competitors
+   - Analyze their pricing strategies
+   - Compare product features
+   - Create summary document
 
-// 계획 수립
-setPlan(jobId: string, todos: string[]): JobResponse
+2. **Execution**: For each step, the AI:
+   - Identifies the right tools to use (web search, data analysis, document creation)
+   - Executes each tool in the right order
+   - Records the results for the next step
 
-// 다음 ToDo 선택
-selectNextTodo(jobId: string): JobResponse
+3. **Completion**: You receive a comprehensive market analysis with all supporting research
 
-// ToDo 실행 계획 수립 (도구 시퀀스 정의)
-planTodoExecution(jobId: string, tools: string[]): JobResponse
+### Recursive Flow Architecture
 
-// 도구 실행 결과 보고
-reportExecution(jobId: string, tool: string, result: any): JobResponse
+The following sequence diagram shows how the tools work together in a recursive, self-managing workflow:
 
-// ToDo 완료 처리
-completeTodo(jobId: string, todoId: number): JobResponse
-```
-
-### Workflow
-
-![seq_diagram](https://www.plantuml.com/plantuml/png/bPH1QnD15CVl-oaUSqeXNToDzR0GQT4U59GUAXvgaUrcJ5StCs5tbWOaK2I2qaWhjRQ6KWAALcan67lmu9VfCRFv3ivCTfiTKniy15xU_EUzt_lpTkOZveOihWK6yrc0OQ6A2VCzk7Th2HxIyDcJW6x0Xi_MOR71S4ZS09Of3IB3gBkX4Ffrbp1u4E5GIwWoMWQ9Ye_JwWZSI7RG1Ne3gSbQbSjWcP0SlKtsNqAoTIWYA9SDsHLcRuwQEO0oGUTTykCK6IejpcKd1zIST-bQ0IKlJfBEr-HeHoe7PoVY_t3lr3HDD6C8QQxYSuyIXXioyYiEUahNPYsxX8go68iZ1zK3bn2VL56p24G85ppcK-AW2BCbSOIQYjqsOT1l3Jjl87brm3__bkmwNAelv5gifEDO8av3UnoMqEeLi8nMQEIiY95M9y02xB7x8hCiD2bVoHH6twR2sK_3zwydwVHBOyWh2Bmu335HUaTwPnL1dLmCrTJ1b9DIlTZ0NYnJaat7c93eTZ5A0scM2kpCd-bqKYxD7_bLXEnGfE-G2cuur_vcLPrIxwwRmBTROeioztXl6tZ_vw3VXGBl7V3-sOpcg5ff1rIDWjX_jnRD62gPOmrn50VCqWqGsJeDsQNZPzDdDwSChyrdNJAUhTcVOxQdCDl_oMnVCDiJp7aeZzRg0MOujxPpsTf-QF6FxScrpL_9zxMcVpddXxl5y_tlyZVz2oAKOGZzwheemByTyzskuXhqDbCqljC5ljSU_6edNpOVaTBi7F2jO_4am6X1r3GtiWSkDyy_CRFt9niHwP2v_DWJ-LewWBGcwQOYOnwJIbmB_W00)
-
-<!-- 
 ```plantuml
 @startuml
-title Agentic MCP Workflow with External Tools
+title Recursive Flow: Agentic Workflow Management
 
 participant User
 participant Agent
-participant "MCP_Agentic" as MCP
+participant "Recursive Flow" as RF
 participant "External Tools" as Tools
 
-== 1. 작업 시작 ==
-User -> Agent: "작업 요청"
-Agent -> MCP: startJob("사용자 요구사항...")
-MCP -> Agent: {context: {id:"job-123", status:"planning"}, nextAction:"setPlan"}
+== 1. Workflow Initiation ==
+User -> Agent: "Complex task request"
+Agent -> RF: startJob(goal)
+RF -> Agent: {context: {id, goal, status:'planning'}, nextAction: 'setPlan'}
 
-== 2. 계획 수립 ==
-Agent -> MCP: setPlan("job-123", ["작업1", "작업2", "작업3"])
-MCP -> Agent: {context: {todos:[...]}, nextAction:"selectNextTodo"}
+== 2. Planning Phase ==
+Agent -> RF: setPlan(jobId, todos)
+RF -> Agent: {context: {todos: [...]}, nextAction: 'selectNextTodo'}
 
-== 3. ToDo 실행 ==
-Agent -> MCP: selectNextTodo("job-123")
-MCP -> Agent: {context: {currentTodo:{id:1, text:"작업1"}}, nextAction:"planTodoExecution"}
+== 3. Recursive Execution Loop ==
+loop For each TODO item
+    Agent -> RF: selectNextTodo(jobId)
+    RF -> Agent: {context: {currentTodo: {...}}, nextAction: 'planTodoExecution'}
+    
+    Agent -> RF: planTodoExecution(jobId, tools)
+    RF -> Agent: {context: {toolPlan: [...]}, nextAction: 'tool1'}
+    
+    loop For each tool in toolPlan
+        Agent -> Tools: execute_tool(params)
+        Tools -> Agent: tool_result
+        Agent -> RF: reportExecution(jobId, tool, result)
+        alt More tools remaining
+            RF -> Agent: {context: {executionHistory: [...]}, nextAction: 'next_tool'}
+        else All tools completed
+            RF -> Agent: {context: {executionHistory: [...]}, nextAction: 'completeTodo'}
+        end
+    end
+    
+    Agent -> RF: completeTodo(jobId, todoId)
+    alt More TODOs remaining
+        RF -> Agent: {context: {todos: [✓,○,○]}, nextAction: 'selectNextTodo'}
+    else All TODOs completed
+        RF -> Agent: {context: {todos: [✓,✓,✓]}, nextAction: 'finishJob'}
+    end
+end
 
-Agent -> MCP: planTodoExecution("job-123", ["tool1", "tool2"])
-MCP -> Agent: {context: {currentTodo:{toolPlan:[...], currentToolIndex:0}}, nextAction:"tool1"}
+== 4. Workflow Completion ==
+Agent -> RF: finishJob(jobId)
+RF -> Agent: {context: {status: 'complete', finalReport: '...'}, nextAction: null}
+Agent -> User: "Complete results with full context"
 
-== 4. 도구 실행 및 보고 (반복) ==
-Agent -> Tools: tool1(params)
-Tools -> Agent: result1
-Agent -> MCP: reportExecution("job-123", "tool1", result1)
-MCP -> Agent: {context: {currentToolIndex:1}, nextAction:"tool2"}
-
-Agent -> Tools: tool2(params)
-Tools -> Agent: result2
-Agent -> MCP: reportExecution("job-123", "tool2", result2)
-MCP -> Agent: {nextAction:"completeTodo"}
-
-== 5. ToDo 완료 ==
-Agent -> MCP: completeTodo("job-123", 1)
-MCP -> Agent: {context: {todos:[✓,◯,◯]}, nextAction:"selectNextTodo"}
-
-note right: 모든 ToDo가 완료될 때까지\n3-5 단계 반복
-
-== 6. 작업 완료 ==
-MCP -> Agent: {context: {status:"complete"}, nextAction:"complete"}
-Agent -> User: "작업 완료 보고"
 @enduml
 ```
--->
 
-### 특징
+### Key Architectural Features
 
-1. **상태 기반 가이드**: MCP가 상태를 관리하고 nextAction으로 Agent를 가이드
-2. **자율적 실행**: Agent는 MCP의 가이드를 따라 자율적으로 도구 호출 및 작업 수행
-3. **투명한 추적**: 모든 도구 실행 결과가 executionHistory에 기록되어 추적 가능
-4. **유연한 도구 통합**: 어떤 외부 도구든 toolPlan에 포함시켜 실행 가능
+- **Self-Directed**: Each tool returns `nextAction` to guide the agent
+- **Context Accumulation**: `executionHistory` builds comprehensive knowledge
+- **Variable Length**: Workflow adapts to any number of steps and tools
+- **Recursive Pattern**: Core loop of select → plan → execute → complete
+- **Clean Termination**: `nextAction: null` signals workflow completion
 
-npx recursive-flow
-npm install -g mcp-flow
-git clone <your-repo>
-## How to Use
+## What Makes It Special
 
-### 1. Install
+- **No Manual Intervention**: Once started, the AI can complete complex multi-step tasks without you having to guide each step
+- **Reliable Results**: The systematic approach ensures consistent, thorough completion of tasks
+- **Full Visibility**: You can see exactly what was done and how decisions were made
+- **Extensible**: Works with any tools your AI assistant has access to
 
-```bash
-npm install -g recursive-flow
-# 또는 npx로 바로 실행
-npx recursive-flow
-```
+## Installation & Setup
 
-### 2. Claude Desktop 연동
+### Setting Up with Claude Desktop
 
-Claude Desktop 설정 파일(`claude_desktop_config.json`)에 다음과 같이 등록하세요:
+To use Recursive Flow with Claude Desktop, add it to your MCP configuration:
+
+1. **Locate your configuration file**: Find `claude_desktop_config.json` in your system:
+   - **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+   - **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+
+2. **Add Recursive Flow** to your MCP servers:
 
 ```json
 {
   "mcpServers": {
     "recursive-flow": {
-      "command": "npx",
-      "args": ["recursive-flow"]
+      "command": "node",
+      "args": ["/path/to/recursive-flow/src/index.ts"],
+      "env": {}
     }
   }
 }
 ```
 
-설치 후 Claude Desktop을 재시작하면 MCP 서버가 자동 연동됩니다.
+3. **Restart Claude Desktop**
+
+### Using with Other AI Assistants
+
+Recursive Flow works with any AI assistant that supports the Model Context Protocol (MCP). Check your AI assistant's documentation for MCP server setup instructions.
+
+## How to Use
+
+Once installed, you can give your AI assistant complex tasks and it will automatically use Recursive Flow to manage the workflow. Here are some examples:
+
+### Simple Usage
+Just ask your AI assistant to handle complex tasks naturally:
+
+> "I need you to research the top 5 competitors in the electric vehicle market and create a detailed comparison report"
+
+### What Happens Behind the Scenes
+1. **Job Creation**: The AI starts a new workflow job
+2. **Planning**: Breaks down the task into specific steps
+3. **Execution**: Works through each step systematically
+4. **Completion**: Provides comprehensive results
+
+### Example Tasks Perfect for Recursive Flow
+
+- **Market Research**: "Research competitors and create analysis reports"
+- **Content Creation**: "Plan and create a complete social media campaign"
+- **Data Analysis**: "Analyze sales data and prepare executive presentations"
+- **Project Planning**: "Create a detailed project timeline with milestones"
+- **Research Projects**: "Investigate a topic and compile comprehensive findings"
+
+## Available Tools
+
+Recursive Flow provides these tools for AI agents (in execution order):
+
+- `startJob`: Begin a new workflow with a specific goal
+- `setPlan`: Break down the goal into actionable steps  
+- `selectNextTodo`: Choose the next task to execute
+- `planTodoExecution`: Plan how to execute a specific task
+- `reportExecution`: Record the results of task execution
+- `completeTodo`: Mark a task as finished
+- `finishJob`: Complete the entire workflow (needs implementation)
+
+### Flow Pattern
+
+The tools follow a recursive pattern:
+
+1. **Start** → setPlan → selectNextTodo
+2. **Loop**: selectNextTodo → planTodoExecution → [external tools] → reportExecution → completeTodo → selectNextTodo  
+3. **End**: selectNextTodo → finishJob → null (workflow complete)
+
+## Benefits for Users
+
+- **Save Time**: No need to break down complex tasks manually
+- **Ensure Completeness**: Nothing gets missed in multi-step processes
+- **Track Progress**: See exactly what's been done and what's remaining
+- **Reduce Errors**: Systematic approach minimizes mistakes
+- **Work Autonomously**: AI handles complex workflows independently
+
+## Troubleshooting
+
+### Common Issues
+
+**Claude doesn't recognize Recursive Flow tools:**
+
+- Check that the MCP server configuration is correct
+- Restart Claude Desktop after configuration changes
+- Verify the file path in the configuration
+
+**Tasks aren't being broken down properly:**
+
+- Try being more specific about what you want to achieve
+- Break very large tasks into smaller initial requests
+
+## Support
+
+For issues, questions, or contributions, please visit the project repository or contact the maintainers.

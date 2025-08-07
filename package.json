@@ -1,6 +1,6 @@
 {
   "name": "recursive-flow",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "An MCP server to facilitate agentic workflows.",
   "main": "dist/index.js",
   "bin": {
