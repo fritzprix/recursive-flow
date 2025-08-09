@@ -1,13 +1,15 @@
 {
   "name": "recursive-flow",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "An MCP server to facilitate agentic workflows.",
   "main": "dist/index.js",
   "bin": {
     "recursive-flow": "dist/index.js"
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "start": "ts-node src/index.ts",

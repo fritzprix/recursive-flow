@@ -120,30 +120,106 @@ Agent -> User: "Complete results with full context"
 
 ## Installation & Setup
 
-### Setting Up with Claude Desktop
+### Quick Setup with Claude Desktop (Recommended)
 
-To use Recursive Flow with Claude Desktop, add it to your MCP configuration:
+> **Note**: Make sure the package is published to npm before using npx. If not published yet, use the "Local Development Setup" method below.
 
-1. **Locate your configuration file**: Find `claude_desktop_config.json` in your system:
+The easiest way to use Recursive Flow is with `npx`, which automatically downloads and runs the latest version:
 
+1. **Locate your Claude Desktop configuration file**:
    - **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
    - **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
 
-2. **Add Recursive Flow** to your MCP servers:
+1. **Add Recursive Flow** to your MCP servers configuration:
 
 ```json
 {
   "mcpServers": {
     "recursive-flow": {
-      "command": "node",
-      "args": ["/path/to/recursive-flow/src/index.ts"],
+      "command": "npx",
+      "args": ["recursive-flow"],
       "env": {}
     }
   }
 }
 ```
 
-3. **Restart Claude Desktop**
+1. **Restart Claude Desktop**
+
+That's it! Claude will automatically download and run Recursive Flow when needed.
+
+### Alternative Setup Methods
+
+#### Option 1: Global Installation
+
+```bash
+npm install -g recursive-flow
+```
+
+Then configure Claude Desktop:
+
+```json
+{
+  "mcpServers": {
+    "recursive-flow": {
+      "command": "recursive-flow",
+      "args": [],
+      "env": {}
+    }
+  }
+}
+```
+
+#### Option 2: Local Development Setup
+
+If you want to run from source code:
+
+```bash
+git clone [repository-url]
+cd recursive-flow
+npm install
+npm run build
+```
+
+Then configure Claude Desktop:
+
+```json
+{
+  "mcpServers": {
+    "recursive-flow": {
+      "command": "node",
+      "args": ["/absolute/path/to/recursive-flow/dist/index.js"],
+      "env": {}
+    }
+  }
+}
+```
+
+### Verification
+
+After setup, restart Claude Desktop and ask it to use Recursive Flow:
+
+> "Can you start a job to research competitors in the AI industry?"
+
+If configured correctly, Claude will use the `startJob` tool to begin a workflow.
+
+## Publishing to NPM
+
+If you're the package maintainer, here's how to publish for npx usage:
+
+```bash
+# Build the package
+npm run build
+
+# Test locally first
+npm pack
+npm install -g ./recursive-flow-1.0.2.tgz
+
+# Publish to NPM
+npm publish
+```
+
+After publishing, users can immediately use `npx recursive-flow` without any installation.
 
 ### Using with Other AI Assistants
 
@@ -208,14 +284,26 @@ The tools follow a recursive pattern:
 
 **Claude doesn't recognize Recursive Flow tools:**
 
-- Check that the MCP server configuration is correct
+- Check that the MCP server configuration uses `npx` and `recursive-flow` correctly
+- Ensure you have an internet connection (npx needs to download the package)
 - Restart Claude Desktop after configuration changes
-- Verify the file path in the configuration
+- Try running `npx recursive-flow` in terminal to verify it works
+
+**NPX-related issues:**
+
+- If you get "command not found", ensure Node.js and npm are installed
+- For the first run, npx might take a moment to download the package
+- If download fails, try: `npm cache clean --force` then restart Claude
 
 **Tasks aren't being broken down properly:**
 
 - Try being more specific about what you want to achieve
 - Break very large tasks into smaller initial requests
+
+**Performance issues:**
+
+- The first run might be slower as npx downloads the package
+- Subsequent runs will be faster as the package is cached
 
 ## 🤖 System Prompt for LLM Agents
 
@@ -223,7 +311,7 @@ The tools follow a recursive pattern:
 
 ### System Prompt Template
 
-```
+```text
 You are an autonomous workflow agent using the Recursive Flow MCP server.
 Follow this exact protocol to handle complex multi-step tasks:
 
